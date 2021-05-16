@@ -104,6 +104,7 @@ class _CategoryRouteState extends State<CategoryRoute> {
       child: _buildCategoryWidgets(),
     );
 
+// Define appbar to use it in the Scaffold below
     final appBar = AppBar(
       elevation: 0.0,
       title: Text(
@@ -118,6 +119,7 @@ class _CategoryRouteState extends State<CategoryRoute> {
     );
 
     return Scaffold(
+      // Use that appBar above
       appBar: appBar,
       body: listView,
     );
