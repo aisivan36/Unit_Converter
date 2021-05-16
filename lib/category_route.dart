@@ -1,5 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'category.dart';
+import 'unit.dart';
 
 final _backgroundColor = Colors.green[100];
 
@@ -102,8 +104,8 @@ class _CategoryRouteState extends State<CategoryRoute> {
       child: _buildCategoryWidgets(),
     );
 
-    final AppBar = AppBar(
-      evelation: 0.0,
+    final appBar = AppBar(
+      elevation: 0.0,
       title: Text(
         'Unit Converter',
         style: TextStyle(
@@ -116,7 +118,7 @@ class _CategoryRouteState extends State<CategoryRoute> {
     );
 
     return Scaffold(
-      appBar: AppBar,
+      appBar: appBar,
       body: listView,
     );
   }

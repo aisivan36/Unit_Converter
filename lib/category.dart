@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
+import 'package:last_app/converter_route.dart';
+import 'unit.dart';
 
 // Use an underscore to indicate that these variables are private.
 final _rowHeight = 100.0;
@@ -91,6 +94,13 @@ class Category extends StatelessWidget {
                     size: 60.0,
                   ),
                 ),
+                Center(
+                  child: Text(
+                    name, textAlign: TextAlign.center,
+                    // headline is deprecated so that we use headline5 instead
+                    style: Theme.of(context).textTheme.headline5,
+                  ),
+                )
               ],
             ),
           ),
