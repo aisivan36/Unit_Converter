@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-
 import 'category.dart';
+import 'category_tile.dart';
 import 'unit.dart';
 
 final _backgroundColor = Colors.green[100];
+
+// Category Route (Screen)
+
+// This is the 'home' screen of the Unit Converter. It shows a header and a list of [Categories].
+// While it is named CategoryRoute, a more apt name would be CategoryScreen,
+// because it is responsible for the UI at the route's destination.
 
 class CategoryRoute extends StatefulWidget {
   const CategoryRoute();
@@ -13,6 +19,7 @@ class CategoryRoute extends StatefulWidget {
 }
 
 class _CategoryRouteState extends State<CategoryRoute> {
+  // [Category]
   final _categories = <Category>[];
   static const _categoryNames = <String>[
     'length',
@@ -64,6 +71,7 @@ class _CategoryRouteState extends State<CategoryRoute> {
   @override
   void initState() {
     super.initState();
+    // Set the default [Category] for the unit converter that opens
     for (var i = 0; i < _categoryNames.length; i++) {
       _categories.add(
         Category(
@@ -76,28 +84,40 @@ class _CategoryRouteState extends State<CategoryRoute> {
     }
   }
 
+  // Function to call when [Category] is tapped.
+  void _onCategoryTap(Category category) {}
+
   // To make the correct number of rows for the list view
   // For Portrait mode, use it as a [ListView]
   Widget _buildCategoryWidgets() {
     return ListView.builder(
-      itemBuilder: (BuildContext context, int index) => _categories[index],
+      itemBuilder: (BuildContext context, int index) {
+        return CategoryTile(
+          category: _categories[index],
+          onTap: _onCategoryTap,
+        );
+      },
       itemCount: _categories.length,
     );
   }
 
   // Return a list of mock [Unit]
   List<Unit> _retrieveUnitList(String categoryName) {
-    return List.generate(10, (int i) {
-      i += 1;
-      return Unit(
-        name: '$categoryName Unit $i',
-        conversion: i.toDouble(),
-      );
-    });
+    return List.generate(
+      10,
+      (int i) {
+        i += 1;
+        return Unit(
+          name: '$categoryName Unit $i',
+          conversion: i.toDouble(),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Import and use the Backdrop widget
     final listView = Container(
       color: _backgroundColor,
       padding: EdgeInsets.symmetric(horizontal: 8.0),
