@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+
+// User imports
 import 'unit.dart';
 
 // Use an underscore to indicate that these variables are private.
@@ -12,13 +14,13 @@ import 'unit.dart';
 class Category {
   final String name;
   final ColorSwatch color;
-  final IconData iconLocation;
   final List<Unit> units;
+  // TODO: Change this icon to a String path to the image asset
+  final IconData iconLocation;
 
-  // Creates [Category]
+  ///Information about a [Category]
 
-  // [Category] saves the name of the Category
-
+  /// [Category] saves the name of the Category (e.g. ''Length'), a list of its color for the UI, the units for conversions (e.g. 'Millimeter', 'Meter'),and the icon that represents it (e.g. a ruler).
   const Category({
     @required this.name,
     @required this.color,

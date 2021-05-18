@@ -42,6 +42,8 @@ class _UnitConverterState extends State<UnitConverter> {
   String _convertedValue = '';
   List<DropdownMenuItem> _unitMenuItems;
   bool _showValidationError = false;
+  // TODO: Pass this into the TextField into the TextField so htat the input value persists
+  final _inputKey = GlobalKey(debugLabel: 'inputText');
 
   //  Determine wheter you need ot override anything, such as initState()
 
@@ -51,11 +53,20 @@ class _UnitConverterState extends State<UnitConverter> {
     _createDropdownMenuItems();
     _setDefaults();
   }
-  // TODO: _createDropdownMenuItems() and _setDefaults() should also be called
+  // _createDropdownMenuItems() and _setDefaults() should also be called
   // each time the user switches [Categories].
 
-  //  Add other helper functions. Here is, _format()
+  @override
+  void didUpdateWidget(UnitConverter old) {
+    super.didUpdateWidget(old);
+    // We update our [DropdownMenuItem] units when we switch [Categories]/
+    if (old.category != widget.category) {
+      _createDropdownMenuItems();
+      _setDefaults();
+    }
+  }
 
+// For Creating a fresh list of the [DropdownMenuItem] widgets, given a list of [Unit]s.
   void _createDropdownMenuItems() {
     var newItems = <DropdownMenuItem>[];
     for (var unit in widget.category.units) {
@@ -82,6 +93,9 @@ class _UnitConverterState extends State<UnitConverter> {
       _fromValue = widget.category.units[0];
       _toValue = widget.category.units[1];
     });
+    if (_inputValue != null) {
+      _updateConversion();
+    }
   }
 
   // Clean up conversion: trim trailing zeros, e.g. 5.500 -> 5.5, 10.0 -> 10
@@ -249,7 +263,7 @@ class _UnitConverterState extends State<UnitConverter> {
     );
 
     //Return the input, arrows, and output widgets, wrapped in a Column.
-
+// TODO: Use a ListView instead of a Column
     final converter = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -258,6 +272,9 @@ class _UnitConverterState extends State<UnitConverter> {
         output,
       ],
     );
+
+    // TODO: Use an OrientationBuilder to add a width to the unit converter
+    // in landscape mode
     return Padding(
       padding: _padding,
       child: converter,
