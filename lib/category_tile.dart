@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 /// User's imports
 import 'category.dart';
 
-// We use an underscore to indicate that these variables are private.
+/// We use an underscore to indicate that these variables are private.
 //
 const _rowHeight = 100.0;
 final _borderRadius = BorderRadius.circular(_rowHeight / 2);
@@ -75,11 +75,9 @@ class CategoryTile extends StatelessWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.all(16.0),
-                  // TODO: Use an Image instead of an Icon.
-                  child: Icon(
-                    category.iconLocation,
-                    size: 60.0,
-                  ),
+
+                  /// Use an assets Image Icon.
+                  child: Image.asset(category.iconLocation),
                 ),
                 Center(
                   child: Text(

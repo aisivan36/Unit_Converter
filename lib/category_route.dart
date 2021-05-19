@@ -3,17 +3,18 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import 'api.dart';
 import 'backdrop.dart';
 import 'category.dart';
 import 'category_tile.dart';
 import 'unit.dart';
 import 'unit_converter.dart';
 
-// Category Route (Screen)
-
-// This is the 'home' screen of the Unit Converter. It shows a header and a list of [Categories].
-// While it is named CategoryRoute, a more apt name would be CategoryScreen,
-// because it is responsible for the UI at the route's destination.
+/// Loads in unit conversion data, and displays the data.
+///
+/// This is the 'home' screen of the Unit Converter. It shows a header and a list of [Categories].
+/// While it is named CategoryRoute, a more apt name would be CategoryScreen,
+/// because it is responsible for the UI at the route's destination.
 
 class CategoryRoute extends StatefulWidget {
   const CategoryRoute();
@@ -23,24 +24,16 @@ class CategoryRoute extends StatefulWidget {
 }
 
 class _CategoryRouteState extends State<CategoryRoute> {
-  // Widget are supposed to be deeply immutable objects. We can update and edit
-  // _categories as we build our app, and when we pass it into a widget's 'children' property, we call .toList() on it.
+  /// Widget are supposed to be deeply immutable objects. We can update and edit
+  /// _categories as we build our app, and when we pass it into a widget's 'children' property, we call .toList() on it.
   //
   Category _defaultCategory;
   Category _currentCategory;
-  // [Category]
+
+  /// [Category]
   final _categories = <Category>[];
   // Remove _categoryNames as they will be retrieved from the JSON asset
-  // static const _categoryNames = <String>[
-  //   'length',
-  //   'Area',
-  //   'Volume',
-  //   'Mass',
-  //   'Time',
-  //   'Digital Storage',
-  //   'Energy',
-  //   'Currency',
-  // ];
+  // static const _categoryNames = <String>['About US'];
 
   static const _baseColors = <ColorSwatch>[
     ColorSwatch(0xFF6AB7A8, {
@@ -78,7 +71,17 @@ class _CategoryRouteState extends State<CategoryRoute> {
     }),
   ];
 
-  // TODO: Add image asset paths in here.
+  /// Add image asset paths in here.
+  static const _icons = <String>[
+    'assets/icons/length.png',
+    'assets/icons/area.png',
+    'assets/icons/volume.png',
+    'assets/icons/mass.png',
+    'assets/icons/time.png',
+    'assets/icons/digital_storage.png',
+    'assets/icons/power.png',
+    'assets/icons/currency.png',
+  ];
 
 // Remove the overriding of initState(). Instead, we use didChangeDependecies()
   // @override
@@ -103,9 +106,15 @@ class _CategoryRouteState extends State<CategoryRoute> {
   @override
   Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
-    // We have static unit conversions located in our assets/data/reguler_units.json
+
+    /// We have static unit conversions located in our assets/data/regular_units.json
+    /// and we want to also obtain up to date Currency conversions from the web
+    /// We only want to load our data in once
     if (_categories.isEmpty) {
       await _retrieveLocalCategories();
+
+      /// Call _retrieveApiCategory() here;
+      await _retrieveApiCategory();
     }
   }
 
@@ -130,8 +139,7 @@ class _CategoryRouteState extends State<CategoryRoute> {
         name: key,
         units: units,
         color: _baseColors[categoryIndex],
-        // TODO: Replace the placeholder icon with an icon iamge path
-        iconLocation: Icons.cake,
+        iconLocation: _icons[categoryIndex],
       );
       setState(() {
         if (categoryIndex == 0) {
@@ -141,6 +149,41 @@ class _CategoryRouteState extends State<CategoryRoute> {
       });
       categoryIndex += 1;
     });
+  }
+
+  /// Retrieve a [Category] and its [Unit]s from an API on the web.
+
+  Future<void> _retrieveApiCategory() async {
+    /// Add a placeholder while we fetch the Currency category suing the API
+    setState(() {
+      _categories.add(
+        Category(
+          name: apiCategory['name'],
+          color: _baseColors.last,
+          iconLocation: _icons.last,
+          units: [],
+        ),
+      );
+    });
+    final api = Api();
+    final jsonUnits = await api.getUnits(apiCategory['route']);
+
+    /// If the API errors out or we have no internet connection. this category remains in placeholder mode(disabled)
+    if (jsonUnits != null) {
+      final units = <Unit>[];
+      for (var unit in jsonUnits) {
+        units.add(Unit.fromJson(unit));
+      }
+      setState(() {
+        _categories.removeLast();
+        _categories.add(Category(
+          name: apiCategory['name'],
+          color: _baseColors.last,
+          iconLocation: _icons.last,
+          units: units,
+        ));
+      });
+    }
   }
 
   /// This function to call when a [Category] is tapped.

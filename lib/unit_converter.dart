@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
+import 'api.dart';
 import 'category.dart';
 import 'unit.dart';
 
@@ -42,11 +43,10 @@ class _UnitConverterState extends State<UnitConverter> {
   String _convertedValue = '';
   List<DropdownMenuItem> _unitMenuItems;
   bool _showValidationError = false;
-  // TODO: Pass this into the TextField into the TextField so htat the input value persists
   final _inputKey = GlobalKey(debugLabel: 'inputText');
+  // TODO: Add a flag for wheter to show error UI
 
   //  Determine wheter you need ot override anything, such as initState()
-
   @override
   void initState() {
     super.initState();
@@ -62,6 +62,7 @@ class _UnitConverterState extends State<UnitConverter> {
     // We update our [DropdownMenuItem] units when we switch [Categories]/
     if (old.category != widget.category) {
       _createDropdownMenuItems();
+
       _setDefaults();
     }
   }
@@ -114,11 +115,27 @@ class _UnitConverterState extends State<UnitConverter> {
     return outputNum;
   }
 
-  void _updateConversion() {
-    setState(() {
-      _convertedValue =
-          _format(_inputValue * (_toValue.conversion / _fromValue.conversion));
-    });
+  // TODO: If in the Currency   [Category], call the API to retireve the conversion.
+  ///Remember, the API call is an async function.
+  Future<void> _updateConversion() async {
+    /// Our API has a handy convert function, so we can use that for the Currency [Category]
+    if (widget.category.name == apiCategory['name']) {
+      final api = Api();
+      final conversion = await api.convert(
+        apiCategory['route'],
+        _inputValue.toString(),
+        _fromValue.name,
+        _toValue.name,
+      );
+      setState(() {
+        _convertedValue = _format(conversion);
+      });
+    } else {
+      setState(() {
+        _convertedValue = _format(
+            _inputValue * (_toValue.conversion / _fromValue.conversion));
+      });
+    }
   }
 
   void _updateInputValue(String input) {
@@ -200,16 +217,18 @@ class _UnitConverterState extends State<UnitConverter> {
 
   @override
   Widget build(BuildContext context) {
+// TODO: Build an error UI
+
     // Create the 'input' group of widgets. This is a Column that includes the input value, and 'from' unit [Dropdown].
     final input = Padding(
       padding: _padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // This is the widget that accepts text input. In this case,
-          // it accepts numbers and calls the onChanged property on update.
-
+          /// This is the widget that accepts text input. In this case,
+          /// it accepts numbers and calls the onChanged property on update.
           TextField(
+            key: _inputKey,
             style: Theme.of(context).textTheme.headline4,
             decoration: InputDecoration(
               labelStyle: Theme.of(context).textTheme.headline4,
@@ -229,7 +248,7 @@ class _UnitConverterState extends State<UnitConverter> {
       ),
     );
 
-    //  Create a compare arrows icon.
+    ///  Create a compare arrows icon.
     final arrows = RotatedBox(
       quarterTurns: 1,
       child: Icon(
@@ -238,7 +257,7 @@ class _UnitConverterState extends State<UnitConverter> {
       ),
     );
 
-    //Create the 'output' group of widgets. This is a Column that includes the output value, and 'to' unit [Dropdown].
+    /// Create the 'output' group of widgets. This is a Column that includes the output value, and 'to' unit [Dropdown].
     final output = Padding(
       padding: _padding,
       child: Column(
@@ -262,10 +281,8 @@ class _UnitConverterState extends State<UnitConverter> {
       ),
     );
 
-    //Return the input, arrows, and output widgets, wrapped in a Column.
-// TODO: Use a ListView instead of a Column
-    final converter = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    /// Return the input, arrows, and output widgets, wrapped in a ListView.
+    final converter = ListView(
       children: [
         input,
         arrows,
@@ -273,11 +290,24 @@ class _UnitConverterState extends State<UnitConverter> {
       ],
     );
 
-    // TODO: Use an OrientationBuilder to add a width to the unit converter
     // in landscape mode
+    /// Based on the orientation of the parent widet, figure out how to best lay out to our conversion.
     return Padding(
       padding: _padding,
-      child: converter,
+      child: OrientationBuilder(
+        builder: (BuildContext context, Orientation orientation) {
+          if (orientation == Orientation.portrait) {
+            return converter;
+          } else {
+            return Center(
+              child: Container(
+                width: 450.0,
+                child: converter,
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 }
